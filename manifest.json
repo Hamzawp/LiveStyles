@@ -1,15 +1,20 @@
 {
-    "manifest_version": 3,
-    "name": "Hamza's Mode",
-    "version": "1.0",
-    "description": "Enable Hamza's mode to edit any webpage.",
-    "permissions": ["activeTab", "scripting"],
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "assets/icon16.png",
-        "48": "assets/icon32.png",
-        "128": "assets/icon128.png"
-      }
+  "manifest_version": 3,
+  "name": "Hamza's Mode",
+  "version": "1.0",
+  "description": "Enable Hamza's mode to edit any webpage.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "48": "assets/icon32.png",
+      "128": "assets/icon128.png"
     }
-  }  
+  },
+  "background": {
+    "service_worker": "sections.js",
+    "type": "module"
+  }
+}
