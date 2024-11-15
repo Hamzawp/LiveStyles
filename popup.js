@@ -2,6 +2,12 @@ import { section1, section2 } from "./sections.js";
 
 document.getElementById("toggleDesignMode").addEventListener("click", async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ["changes.js"],
+  });
+
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: toggleDesignMode,
@@ -9,10 +15,14 @@ document.getElementById("toggleDesignMode").addEventListener("click", async () =
   });
 });
 
-// enable color picker
+// Enable color picker
 function toggleDesignMode(section1, section2) {
   document.designMode = document.designMode === "on" ? "off" : "on";
   alert("Hamza's Mode is now " + document.designMode);
+
+  if (!window.changesMade) {
+    window.changesMade = {};
+  }
 
   if (document.designMode === "on") {
     // Create color picker input
@@ -23,34 +33,47 @@ function toggleDesignMode(section1, section2) {
     colorPicker.id = "dynamicColorPicker";
     document.body.appendChild(colorPicker);
 
+    if (typeof addSettingsButton === "function") {
+      addSettingsButton();
+    }
+
     document.addEventListener("click", (event) => {
       colorPicker.style.top = event.pageY + "px";
       colorPicker.style.left = event.pageX + "px";
       colorPicker.style.display = "block";
 
+      const element = event.target;
+      const elementIdentifier = element.id
+        ? `#${element.id}`
+        : element.className
+        ? `.${element.className.split(" ").join(".")}`
+        : element.tagName.toLowerCase();
+
       if (section1.includes(event.target.tagName.toLowerCase())) {
-        const div = event.target;
         colorPicker.oninput = (e) => {
-          div.style.backgroundColor = e.target.value;
+          element.style.backgroundColor = e.target.value;
+          if (!window.changesMade[elementIdentifier]) {
+            window.changesMade[elementIdentifier] = {};
+          }
+          window.changesMade[elementIdentifier]["background-color"] = e.target.value;
         };
       } else if (section2.includes(event.target.tagName.toLowerCase())) {
-        const div = event.target;
         colorPicker.oninput = (e) => {
-          div.style.color = e.target.value;
+          element.style.color = e.target.value;
+          if (!window.changesMade[elementIdentifier]) {
+            window.changesMade[elementIdentifier] = {};
+          }
+          window.changesMade[elementIdentifier]["color"] = e.target.value;
         };
       }
     });
-    //   Hide color picker logic pending
-    //   document.addEventListener("click", (event) => {
-    //     if (event.target !== colorPicker && event.target.tagName.toLowerCase() !== "div") {
-    //       colorPicker.style.display = "none";
-    //     }
-    //   });
   } else {
-    // Remove color picker
+    addSettingsButton();
     const colorPicker = document.getElementById("dynamicColorPicker");
     if (colorPicker) {
       colorPicker.remove();
+
+      alert("Changes made: " + JSON.stringify(window.changesMade, null, 2));
     }
   }
 }
