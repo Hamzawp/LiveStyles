@@ -25,7 +25,13 @@ function toggleDesignMode(section1, section2) {
   }
 
   if (document.designMode === "on") {
-    // Create color picker input
+    document.body.style.cursor = "crosshair";
+    //confused whether to keep it or not
+    let divs = document.getElementsByTagName("div");
+    for (let i = 0; i < divs.length; i++) {
+      divs[i].style.border = "1px solid black";
+    }
+
     let colorPicker = document.createElement("input");
     colorPicker.type = "color";
     colorPicker.style.position = "fixed";
@@ -48,7 +54,7 @@ function toggleDesignMode(section1, section2) {
         : element.className
         ? `.${element.className.split(" ").join(".")}`
         : element.tagName.toLowerCase();
-
+        
       if (section1.includes(event.target.tagName.toLowerCase())) {
         colorPicker.oninput = (e) => {
           element.style.backgroundColor = e.target.value;
